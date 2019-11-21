@@ -21,7 +21,7 @@ ORIENT = (pp.Keyword('N')
         | pp.Keyword('FW'))
 pt = LPAR + pp.OneOrMore(number | pp.Keyword('*')) + RPAR  # pair of x,y
 
-class DEF:
+class DefParser:
     #
     def __init__(self):
         self.mydict = lambda: defaultdict(self.mydict)
@@ -40,12 +40,12 @@ class DEF:
         self.events = [Event()]
         self.design = ''
         # self.def_file = ['example_1.def']
-        self.def_file = ['example_2.def']  # larger file with ~350k lines
+        self.def_files = ['example_2.def']  # larger file with ~350k lines
 
 
     #
     def run(self):
-        for curr_def in self.def_file:
+        for curr_def in self.def_files:
             ifile = open(curr_def,'r')
             file_string = ifile.read()
             ifile.close()
@@ -865,7 +865,7 @@ class DEF:
 
 
 def main():
-    _def = DEF()
+    _def = DefParser()
     _def.run()
 
 

@@ -21,7 +21,7 @@ ORIENT = (pp.Keyword('N')
         | pp.Keyword('FW'))
 pt = LPAR + pp.OneOrMore(number | pp.Keyword('*')) + RPAR  # pair of x,y
 
-class DEF:
+class DefParser:
     #
     def __init__(self):
         self.mydict = lambda: defaultdict(self.mydict)
@@ -29,18 +29,20 @@ class DEF:
         self.ignore_nets_route = False
         # Each list is a new process. Careful with dependencies.
         # 'dbuPerMicron' must be executed bofore the other, but can be after 'design'
-        self.sections_grp = [['design', 'dbuPerMicron', 'diearea', 'components', 'pins', 'specialnets', 'nets'],
+        self.sections_grp = [['design', 'dbuPerMicron', 'diearea',
+                              'components', 'pins', 'specialnets',
+                              'nets'],
                             ]
         self.n_elems_sections_grp = sum([len(x) for x in self.sections_grp])
         self.events = [Event()]
         self.design = ''
         # self.def_file = ['example_1.def']
-        self.def_file = ['example_2.def']  # larger file with ~350k lines
+        self.def_files = ['example_2.def']  # larger file with ~350k lines
 
 
     #
     def run(self):
-        for curr_def in self.def_file:
+        for curr_def in self.def_files:
             ifile = open(curr_def,'r')
             file_string = ifile.read()
             ifile.close()
@@ -972,7 +974,7 @@ class DEF:
 
 
 def main():
-    _def = DEF()
+    _def = DefParser()
     _def.run()
 
 
