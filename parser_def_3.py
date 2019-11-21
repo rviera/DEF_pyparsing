@@ -25,14 +25,17 @@ class DefParser:
     #
     def __init__(self):
         self.mydict = lambda: defaultdict(self.mydict)
-        self.ignore_nets = False
+        self.ignore_nets = True
         self.ignore_nets_route = False
         # Each list is a new process. Careful with dependencies.
         # 'dbuPerMicron' must be executed bofore the other, but can be after 'design'
-        self.sections_grp = [['design', 'dbuPerMicron', 'diearea',
-                              'components', 'pins', 'specialnets',
-                              'nets'],
+        self.sections_grp = [['design', 'dbuPerMicron', 'diearea'],
+                             ['components'],
+                             # ['pins'],
+                             # ['specialnets'],
                             ]
+        if not self.ignore_nets:
+            self.sections_grp.append(['nets'])
         self.n_elems_sections_grp = sum([len(x) for x in self.sections_grp])
         self.events = [Event()]
         self.design = ''
