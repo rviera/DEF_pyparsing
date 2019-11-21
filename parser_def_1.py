@@ -6,7 +6,6 @@ import json
 # GLOBALS for this class
 EOL = pp.LineEnd().suppress()
 linebreak = pp.Suppress(";" + pp.LineEnd())
-identifier = pp.Word(pp.alphanums + '._“!<>/[]$#$%&‘*+,/:<=>?@[\]^_`{|}~')  # CONFLICT with '();'
 number = pp.pyparsing_common.number
 word = pp.Word(pp.alphas)
 LPAR = pp.Suppress('(')
@@ -25,14 +24,14 @@ class DefParser:
     #
     def __init__(self):
         self.mydict = lambda: defaultdict(self.mydict)
-        self.ignore_nets = False
+        self.ignore_nets = True
         self.ignore_nets_route = False
         # Each list is a new process. Careful with dependencies.
         # 'dbuPerMicron' must be executed bofore the other, but can be after 'design'
         self.sections_grp = [['design', 'dbuPerMicron', 'diearea'],
                              ['components'],
-                             ['pins'],
-                             ['specialnets'],
+                             # ['pins'],
+                             # ['specialnets'],
                             ]
         if not self.ignore_nets:
             self.sections_grp.append(['nets'])
@@ -81,6 +80,7 @@ class DefParser:
 
     # Parse the DESIGN section of a .DEF file
     def parse_design(self):
+        identifier = pp.Word(pp.alphanums + '._“!<>/[]$#$%&‘*+,/:<=>?@[\]^_`{|}~')  # CONFLICT with '();'
         design_id  = pp.Keyword('DESIGN')
         design     = design_id + identifier('DESIGN') + linebreak
         self.events[0].set()  # event[0] (parse_dbuPerMicron) has priority
@@ -89,6 +89,7 @@ class DefParser:
     # Parse the UNITS DISTANCE MICRONS section of a .DEF file
     def parse_dbuPerMicron(self):
         self.events[0].wait()  # event[0] (parse_dbuPerMicron) has priority
+        identifier = pp.Word(pp.alphanums + '._“!<>/[]$#$%&‘*+,/:<=>?@[\]^_`{|}~')  # CONFLICT with '();'
         dbuPerMicron_id  = pp.Keyword('UNITS DISTANCE MICRONS')
         dbuPerMicron     = dbuPerMicron_id + number('dbuPerMicron') + linebreak
 
@@ -97,6 +98,7 @@ class DefParser:
     # Parse the DIEAREA section of a .DEF file
     def parse_diearea(self):
         self.events[0].wait()  # event[0] (parse_dbuPerMicron) has priority
+        identifier = pp.Word(pp.alphanums + '._“!<>/[]$#$%&‘*+,/:<=>?@[\]^_`{|}~')  # CONFLICT with '();'
         diearea_id  = pp.Keyword('DIEAREA')
         diearea     = pp.Group(pp.Suppress(diearea_id)
                                + pp.OneOrMore(pt)
@@ -108,6 +110,7 @@ class DefParser:
     # Parse the COMPONENTS section of a .DEF file
     def parse_components(self):
         self.events[0].wait()  # Wait for event[0] to finish
+        identifier = pp.Word(pp.alphanums + '._“!<>/[]$#$%&‘*+,/:<=>?@[\]^_`{|}~')  # CONFLICT with '();'
         components_id = pp.Keyword('COMPONENTS')
         end_components_id = pp.Keyword("END COMPONENTS").suppress()
         begin_comp = pp.Suppress(pp.Keyword('-'))
@@ -190,15 +193,15 @@ class DefParser:
 
         subcomponent = pp.Group(begin_comp
                                 + compName
-                                + pp.Optional(EEQMASTER)
-                                + pp.Optional(SOURCE)
-                                + pp.Optional(PLACEMENT)
-                                + pp.Optional(MASKSHIFT)
-                                + pp.Optional(HALO)
-                                + pp.Optional(ROUTEHALO)
-                                + pp.Optional(WEIGHT)
-                                + pp.Optional(REGION)
-                                + pp.ZeroOrMore(PROPERTY)
+                                + (pp.Optional(EEQMASTER)
+                                & pp.Optional(SOURCE)
+                                & pp.Optional(PLACEMENT)
+                                & pp.Optional(MASKSHIFT)
+                                & pp.Optional(HALO)
+                                & pp.Optional(ROUTEHALO)
+                                & pp.Optional(WEIGHT)
+                                & pp.Optional(REGION)
+                                & pp.ZeroOrMore(PROPERTY))
                                 + linebreak
                                ).setResultsName('subcomponents', listAllMatches=True)
 
@@ -213,6 +216,7 @@ class DefParser:
 
     # Parse the PINS section of a .DEF file
     def parse_pins(self):
+        identifier = pp.Word(pp.alphanums + '._“!<>/[]$#$%&‘*+,/:<=>?@[\]^_`{|}~')  # CONFLICT with '();'
         pins_id = pp.Keyword('PINS')
         end_pins_id = pp.Keyword("END PINS").suppress()
         begin_pin = pp.Keyword('-')
@@ -440,6 +444,7 @@ class DefParser:
 
     # Parse the NETS section of a .DEF file
     def parse_nets(self):
+        identifier = pp.Word(pp.alphanums + '._“!<>/[]$#$%&‘*+,/:<=>?@[\]^_`{|}~')  # CONFLICT with '();'
         nets_id = pp.Keyword('NETS')
         end_nets_id = pp.Keyword("END NETS").suppress()
         begin_net = pp.Keyword('-')
@@ -701,6 +706,7 @@ class DefParser:
 
     # Parse the SPECIALNETS section of a .DEF file
     def parse_specialnets(self):
+        identifier = pp.Word(pp.alphanums + '._“!<>/[]$#$%&‘*+,/:<=>?@[\]^_`{|}~')  # CONFLICT with '();'
         specialnets_id = pp.Suppress(pp.Keyword('SPECIALNETS'))
         end_specialnets_id = pp.Keyword("END SPECIALNETS").suppress()
         begin_specialnet = pp.Suppress(pp.Keyword('-'))
